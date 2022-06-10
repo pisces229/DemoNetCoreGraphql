@@ -10,6 +10,7 @@ namespace DemoNetCoreGraphql.Domain.Schemas.Default
         {
             Query = query;
             Mutation = mutation;
+            //RegisterType(typeof(GraphType));
             // Middleware required for Apollo tracing to record performance metrics of field resolvers.
             FieldMiddleware.Use(new InstrumentFieldsMiddleware());
         }
@@ -18,8 +19,9 @@ namespace DemoNetCoreGraphql.Domain.Schemas.Default
     {
         public DefaultQuery()
         {
-            //Name = "DefaultQuery";
-            //Description = "DefaultQuery";
+            Name = "Query";
+            Description = "This is DefaultQuery.";
+            Field<BooleanGraphType>(name: "run", resolve: (context) => true);
             // Field / FieldAsync
             //Field<NonNullGraphType<GraphType>>(
             //    name: "key",
@@ -106,8 +108,9 @@ namespace DemoNetCoreGraphql.Domain.Schemas.Default
     {
         public DefaultMutation()
         {
-            //Name = "DefaultMutation";
-            //Description = "DefaultMutation";
+            Name = "Mutation";
+            Description = "This is DefaultMutation.";
+            Field<BooleanGraphType>(name: "run", resolve: (context) => true);
             Field<NonNullGraphType<DefaultFirstGraphType>>(
                 name: "first",
                 arguments: new QueryArguments(
@@ -132,6 +135,7 @@ namespace DemoNetCoreGraphql.Domain.Schemas.Default
         public DefaultFirstGraphType()
         {
             Name = "First";
+            Description = "This is First.";
             Field(h => h.Id).Description("This is Id.");
             Field(h => h.Name).Description("This is Name.");
             Field(h => h.Date, nullable: true).Description("This is Date.");
@@ -177,6 +181,7 @@ namespace DemoNetCoreGraphql.Domain.Schemas.Default
         public DefaultFirstInputGraphType()
         {
             Name = "FirstInput";
+            Description = "This is FirstInput.";
             //Field<NonNullGraphType<StringGraphType>>(name: "name", description: "description");
             Field< NonNullGraphType<IntGraphType>>(name: "id", description: "This is Id.");
             Field<StringGraphType>(name: "name", description: "This is Name.");
@@ -195,6 +200,7 @@ namespace DemoNetCoreGraphql.Domain.Schemas.Default
         public DefaultSecondGraphType()
         {
             Name = "Second";
+            Description = "This is Second.";
             Field(h => h.Id).Description("This is Id.");
             Field(h => h.Name).Description("This is Name.");
             Field(h => h.Date, nullable: true).Description("This is Date.");
