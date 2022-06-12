@@ -44,6 +44,26 @@ namespace DemoNetCoreGraphql.Domain.Schemas.DefaultColor
                     Name = "Blue",
                     Blue = 0,
                 });
+            Field<ListGraphType<DefaultColorGraphType>>(
+                name: "color",
+                resolve: (context) => new List<object>()
+                {
+                    new DefaultRed()
+                    {
+                        Name = "Red",
+                        Red = 0,
+                    },
+                    new DefaultGreen()
+                    {
+                        Name = "Green",
+                        Green = 1,
+                    },
+                    new DefaultBlue()
+                    {
+                        Name = "Blue",
+                        Blue = 0,
+                    }
+                });
         }
     }
     public class DefaultColorMutation : ObjectGraphType

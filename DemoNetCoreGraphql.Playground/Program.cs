@@ -3,27 +3,48 @@ using DemoNetCoreGraphql.Domain.Sample;
 using DemoNetCoreGraphql.Domain.Schemas.Default;
 using DemoNetCoreGraphql.Domain.Schemas.DefaultAnimal;
 using DemoNetCoreGraphql.Domain.Schemas.DefaultColor;
-using DemoNetCoreGraphql.Playground;
+using DemoNetCoreGraphql.Domain.ValidationRules;
 using GraphQL;
 using GraphQL.MicrosoftDI;
 using GraphQL.Server;
 using GraphQL.Server.Ui.Playground;
 using GraphQL.SystemTextJson;
+using GraphQL.Validation.Complexity;
 
 #region WebApplicationBuilder
 var webApplicationBuilder = WebApplication.CreateBuilder(args);
-webApplicationBuilder.Services.AddGraphQL(builder => builder
+webApplicationBuilder.Services.AddGraphQL(builder => 
+builder
     .AddHttpMiddleware<StarWarsSchema>()
     .AddHttpMiddleware<DefaultSchema>()
     .AddHttpMiddleware<DefaultAnimalSchema>()
     .AddHttpMiddleware<DefaultColorSchema>()
-    .AddUserContextBuilder(context => new GraphQLUserContext { User = context.User })
+    .AddUserContextBuilder(httpContext => 
+    {
+        var userContext = new DefaultUserContext
+        { 
+            User = httpContext.User,
+            IsAdmin = true,
+        };
+        //userContext.Add("key", "value");
+        //var method = httpContext.Request.Method;
+        return userContext;
+    })
     .AddSchema<StarWarsSchema>()
     .AddSchema<DefaultSchema>()
     .AddSchema<DefaultAnimalSchema>()
     .AddSchema<DefaultColorSchema>()
+    .AddValidationRule<DefaultValidationRule>()
     .AddSystemTextJson()
-    .AddErrorInfoProvider(options => options.ExposeExceptionStackTrace = false)
+    .ConfigureExecutionOptions(option =>
+    {
+        //option.ComplexityConfiguration = new ComplexityConfiguration { MaxDepth = 15 };
+        //option.UnhandledExceptionDelegate = async context =>
+        //{
+        //    await Task.FromResult("");
+        //};
+    })
+    .AddErrorInfoProvider(options => options.ExposeExceptionStackTrace = true)
     .AddGraphTypes(typeof(LoadGraphType).Assembly));
 webApplicationBuilder.Services.AddSingleton<StarWarsData>();
 webApplicationBuilder.Services.AddLogging(builder => builder.AddConsole());

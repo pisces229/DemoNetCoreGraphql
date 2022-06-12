@@ -1,4 +1,6 @@
-﻿using GraphQL;
+﻿using DemoNetCoreGraphql.Domain.Directives;
+using DemoNetCoreGraphql.Domain.Visitors;
+using GraphQL;
 using GraphQL.Instrumentation;
 using GraphQL.Types;
 
@@ -10,6 +12,10 @@ namespace DemoNetCoreGraphql.Domain.Schemas.Default
         {
             Query = query;
             Mutation = mutation;
+            Directives.Register(new AdminDirective(), new UppercaseDirective());
+            Directives.Register(new AdminDirective(), new UppercaseDirective());
+            RegisterVisitor(new UppercaseDirectiveVisitor());
+            RegisterVisitor(new AdminDirectiveVisitor());
             //RegisterType(typeof(GraphType));
             // Middleware required for Apollo tracing to record performance metrics of field resolvers.
             FieldMiddleware.Use(new InstrumentFieldsMiddleware());
@@ -21,7 +27,8 @@ namespace DemoNetCoreGraphql.Domain.Schemas.Default
         {
             Name = "Query";
             Description = "This is DefaultQuery.";
-            Field<BooleanGraphType>(name: "run", resolve: (context) => true);
+            Field<BooleanGraphType>(name: "run", resolve: (context) => true)
+                .ApplyDirective("deprecated");
             // Field / FieldAsync
             //Field<NonNullGraphType<GraphType>>(
             //    name: "key",
@@ -47,7 +54,8 @@ namespace DemoNetCoreGraphql.Domain.Schemas.Default
                 arguments: new QueryArguments(
                     new QueryArgument<StringGraphType> { Name = "input", Description = "This is input." }
                 ),
-                resolve: (context) => context.GetArgument<string?>("input"));
+                resolve: (context) => context.GetArgument<string?>("input"))
+                .ApplyDirective("uppercase");
             Field<IntGraphType>(
                 name: "int",
                 arguments: new QueryArguments(
@@ -66,6 +74,7 @@ namespace DemoNetCoreGraphql.Domain.Schemas.Default
                     new QueryArgument<DefaultFirstInputGraphType> { Name = "input", Description = "This is input." }
                 ),
                 resolve: (context) => {
+                    //Metadata.Add("rule", "value");
                     return context.GetArgument<DefaultFirst?>("input");
                 });
             #endregion
@@ -118,8 +127,14 @@ namespace DemoNetCoreGraphql.Domain.Schemas.Default
                 ),
                 resolve: (context) =>
                 {
+                    //Metadata.Add("rule", "value");
+                    //context.Arguments;
+                    //context.Variables;
+                    //context.Directives;
+                    //context.Parent;
                     return context.GetArgument<DefaultFirst>("input");
                 });
+                //.ApplyDirective("admin");
         }
     }
 
@@ -137,7 +152,9 @@ namespace DemoNetCoreGraphql.Domain.Schemas.Default
             Name = "First";
             Description = "This is First.";
             Field(h => h.Id).Description("This is Id.");
-            Field(h => h.Name).Description("This is Name.");
+                //.Directive("admin");
+            Field(h => h.Name).Description("This is Name.")
+                .Directive("uppercase");
             Field(h => h.Date, nullable: true).Description("This is Date.");
             Field<DefaultSecondGraphType>(
               name: "second",
@@ -183,7 +200,7 @@ namespace DemoNetCoreGraphql.Domain.Schemas.Default
             Name = "FirstInput";
             Description = "This is FirstInput.";
             //Field<NonNullGraphType<StringGraphType>>(name: "name", description: "description");
-            Field< NonNullGraphType<IntGraphType>>(name: "id", description: "This is Id.");
+            Field<NonNullGraphType<IntGraphType>>(name: "id", description: "This is Id.");
             Field<StringGraphType>(name: "name", description: "This is Name.");
             // date: 2016-07-20T17:30:15+05:30
             Field<DateTimeGraphType>(name: "date", description: "This is Date.");

@@ -12,7 +12,7 @@
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
-      "launchUrl": "ui/altair",
+      "launchUrl": "ui/default",
       "applicationUrl": "https://localhost:9120;http://localhost:9121",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

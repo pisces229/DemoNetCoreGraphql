@@ -1,4 +1,5 @@
-﻿using GraphQL;
+﻿using DemoNetCoreGraphql.Domain;
+using GraphQL;
 using GraphQL.Instrumentation;
 using GraphQL.Transport;
 using GraphQL.Types;
@@ -34,10 +35,12 @@ namespace DemoNetCoreGraphql.Graphiql.Controllers
                 options.Variables = request.Variables;
                 //options.Extensions = request.Extensions;
                 options.RequestServices = HttpContext.RequestServices;
-                options.UserContext = new GraphQLUserContext
+                options.UserContext = new DefaultUserContext
                 {
                     User = HttpContext.User,
+                    IsAdmin = true,
                 };
+                //options.ValidationRules
                 options.CancellationToken = HttpContext.RequestAborted;
             });
             executionResult.EnrichWithApolloTracing(DateTime.UtcNow);
